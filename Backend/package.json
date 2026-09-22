@@ -19,6 +19,7 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
+    "@vercel/node": "^3.2.29",
     "prisma": "^5.22.0"
   }
 }
