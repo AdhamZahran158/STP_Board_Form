@@ -1,0 +1,387 @@
+/* ==========================================================================
+   THEME VARIABLES — edit these to change colors/fonts across the whole app
+   ========================================================================== */
+:root {
+  --color-bg-dark: #3a0f10;
+  --color-bg-mid: #5c1416;
+  --color-bg-light: #7a1e1e;
+  --color-cream: #f6e3c1;
+  --color-cream-soft: #f2d9ab;
+  --color-gold: #e0b96a;
+  --color-gold-bright: #f3d999;
+  --color-text-dark: #3a2210;
+  --color-text-light: #fdf3e2;
+  --color-error: #ff8a8a;
+  --color-success: #7fd8a0;
+
+  --font-main: 'Baloo 2', 'Trebuchet MS', 'Segoe UI', sans-serif;
+
+  --radius-lg: 32px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-text: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  background: radial-gradient(
+      circle at 50% 0%,
+      var(--color-bg-light) 0%,
+      var(--color-bg-mid) 45%,
+      var(--color-bg-dark) 100%
+    );
+  color: var(--color-text-light);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px 60px;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.header img {
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(var(--shadow-text));
+}
+
+.header-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-cream);
+  text-shadow: var(--shadow-text);
+  letter-spacing: 0.2px;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.hero h1 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--color-text-light);
+  text-shadow: var(--shadow-text);
+}
+
+.hero h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  margin: 4px 0 0;
+  color: var(--color-gold-bright);
+  text-shadow: var(--shadow-text);
+}
+
+/* ---------- Card ---------- */
+.form-card {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(122, 30, 30, 0.55), rgba(58, 15, 16, 0.65));
+  border: 3px solid var(--color-gold);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft), inset 0 0 40px rgba(0, 0, 0, 0.15);
+  padding: 34px 26px 30px;
+  backdrop-filter: blur(2px);
+}
+
+/* ---------- Step indicator ---------- */
+.step-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 26px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.step-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-cream-soft);
+  border: 2px solid rgba(230, 200, 150, 0.35);
+  transition: all 0.25s ease;
+}
+
+.step-circle.active {
+  background: var(--color-cream);
+  color: var(--color-text-dark);
+  border-color: var(--color-gold-bright);
+  box-shadow: 0 0 0 4px rgba(224, 185, 106, 0.25);
+}
+
+.step-circle.completed {
+  background: var(--color-gold);
+  color: var(--color-text-dark);
+  border-color: var(--color-gold);
+}
+
+.step-label-wrap {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.step-label {
+  display: inline-block;
+  background: var(--color-cream);
+  color: var(--color-text-dark);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 6px 18px;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Fields ---------- */
+.field {
+  margin-bottom: 20px;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  color: var(--color-cream);
+}
+
+.field label .required-star {
+  color: var(--color-gold-bright);
+  margin-left: 2px;
+}
+
+.field input[type='text'],
+.field input[type='tel'],
+.field input[type='email'],
+.field input[type='url'],
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: none;
+  outline: none;
+  background: var(--color-cream-soft);
+  color: var(--color-text-dark);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #8a6f4d;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  background: #fff3dc;
+  box-shadow: 0 0 0 3px rgba(224, 185, 106, 0.55);
+}
+
+.field textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='9'><path d='M1 1l6 6 6-6' stroke='%233a2210' stroke-width='2' fill='none' fill-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+.field.has-error input,
+.field.has-error textarea,
+.field.has-error select {
+  box-shadow: 0 0 0 3px rgba(255, 138, 138, 0.65);
+}
+
+.error-text {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+/* Radio / gender group */
+.radio-group {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.radio-pill {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(246, 227, 193, 0.12);
+  border: 2px solid rgba(230, 200, 150, 0.35);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-cream);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.radio-pill input {
+  accent-color: var(--color-gold);
+  width: 16px;
+  height: 16px;
+}
+
+.radio-pill.selected {
+  background: var(--color-cream);
+  color: var(--color-text-dark);
+  border-color: var(--color-gold-bright);
+}
+
+/* ---------- Buttons ---------- */
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.btn {
+  flex: 1;
+  padding: 15px 20px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--color-gold-bright), var(--color-gold));
+  color: var(--color-text-dark);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.btn-secondary {
+  background: rgba(246, 227, 193, 0.12);
+  color: var(--color-cream);
+  border: 2px solid rgba(230, 200, 150, 0.4);
+}
+
+.btn-secondary:hover {
+  background: rgba(246, 227, 193, 0.2);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Success screen ---------- */
+.success-wrap {
+  text-align: center;
+  padding: 20px 6px 6px;
+}
+
+.success-icon {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 2.2rem;
+  color: var(--color-text-dark);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.success-wrap h2 {
+  color: var(--color-cream);
+  margin-bottom: 10px;
+}
+
+.success-wrap p {
+  color: var(--color-cream-soft);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 420px) {
+  .hero h1,
+  .hero h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-card {
+    padding: 26px 18px 22px;
+  }
+
+  .step-indicator {
+    gap: 18px;
+  }
+
+  .header img {
+    width: 46px;
+    height: 46px;
+  }
+
+  .header-title {
+    font-size: 0.9rem;
+  }
+}

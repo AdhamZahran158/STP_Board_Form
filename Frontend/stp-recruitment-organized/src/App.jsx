@@ -1,143 +1,342 @@
-import React, { useState } from 'react';
-import RecruitmentForm from './components/RecruitmentForm';
-import SubmittedScreen from './components/SubmittedScreen';
-import { schemas } from './validation/schemas';
+import { useState } from 'react'
+import Header from './components/Header.jsx'
+import StepIndicator from './components/StepIndicator.jsx'
+import Step1PersonalInfo from './components/Step1PersonalInfo.jsx'
+import DynamicQuestionStep from './components/DynamicQuestionStep.jsx'
+import NavButtons from './components/NavButtons.jsx'
+import SuccessScreen from './components/SuccessScreen.jsx'
+
+import { step2Questions, step3Questions } from './data/questions.js'
+
+import {
+  schemas,
+  validateStep,
+  hasErrors,
+} from './utils/validation.js'
+
+const INITIAL_STEP1 = {
+  fullName: '',
+  phone: '',
+  email: '',
+  gender: '',
+  university: '',
+  faculty: '',
+  academicYear: '',
+  linkedin: '',
+  beenInStpBefore: '',
+  previousCommitteeIfApplicable: '',
+  previousRoleIfApplicable: '',
+  appliedCommittee: '',
+  involvedInOtherActivities: '',
+}
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [activeCard, setActiveCard] = useState('banner');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(true);
+  const [step, setStep] = useState(1)
+  const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submissionSuccess, setSubmissionSuccess] = useState(true)
 
-  const handleNext = async (validateForm, setTouched) => {
-    const currentSchema = schemas[currentStep];
-    const errors = await validateForm();
-    const fieldsInCurrentStep = Object.keys(currentSchema.fields);
-    const stepErrors = fieldsInCurrentStep.filter(field => errors[field]);
+  const [step1Data, setStep1Data] = useState(INITIAL_STEP1)
+  const [step2Data, setStep2Data] = useState({})
+  const [step3Data, setStep3Data] = useState({})
 
-    if (stepErrors.length > 0) {
-      const touchedObj = {};
-      fieldsInCurrentStep.forEach(field => { touchedObj[field] = true; });
-      setTouched(touchedObj, true);
-      const firstErrField = stepErrors[0];
-      const element = document.getElementsByName(firstErrField)[0];
-      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
+  const [errors, setErrors] = useState({})
+
+  function updateStep1(field, value) {
+    setStep1Data((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  function updateStep2(field, value) {
+    setStep2Data((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  function updateStep3(field, value) {
+    setStep3Data((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  async function handleNext() {
+    let schema
+    let data
+
+    if (step === 1) {
+      schema = schemas[0]
+      data = step1Data
     }
 
-    if (currentStep < 2) {
-      setCurrentStep(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setActiveCard('banner');
+    if (step === 2) {
+      schema = schemas[1]
+      data = step2Data
     }
-  };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setActiveCard('banner');
+    if (step === 3) {
+      schema = schemas[2]
+      data = step3Data
     }
-  };
 
-  const handleFormSubmit = async (values) => {
-    setIsSubmitting(true);
+    const stepErrors = await validateStep(schema, data)
+
+    setErrors(stepErrors)
+
+    if (hasErrors(stepErrors)) {
+      // Scroll to the first invalid field
+      const firstErrorField = Object.keys(stepErrors)[0]
+
+      const element = document.querySelector(
+        `[name="${firstErrorField}"]`,
+      )
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }
+
+      return
+    }
+
+    setErrors({})
+
+    if (step < 3) {
+      setStep((current) => current + 1)
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    } else {
+      await submitApplication()
+    }
+  }
+
+  function handleBack() {
+    setErrors({})
+
+    setStep((current) => Math.max(1, current - 1))
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+  }
+
+  async function submitApplication() {
+    setIsSubmitting(true)
+    setSubmissionSuccess(true)
+
+    const fullSubmission = {
+      ...step1Data,
+      ...step2Data,
+      ...step3Data,
+    }
 
     const formattedPayload = {
       applicantDetails: {
-        fullName: values.fullName,
-        phone: values.phone,
-        email: values.email,
-        gender: values.gender,
-        university: values.university,
-        faculty: values.faculty,
-        academicYear: values.academicYear,
-        linkedinProfile: values.linkedin,
+        fullName: fullSubmission.fullName,
+        phone: fullSubmission.phone,
+        email: fullSubmission.email,
+        gender: fullSubmission.gender,
+        university: fullSubmission.university,
+        faculty: fullSubmission.faculty,
+        academicYear: fullSubmission.academicYear,
+        linkedinProfile: fullSubmission.linkedin,
       },
+
       stpAndCommitteeSelection: {
-        beenInStpBefore: values.beenInStpBefore,
-        previousCommitteeIfApplicable: values.previousCommitteeIfApplicable || null,
-        previousRoleIfApplicable: values.previousRoleIfApplicable || null,
-        appliedCommittee: values.appliedCommittee,
-        currentlyInvolvedInOtherActivities: values.involvedInOtherActivities,
+        beenInStpBefore: fullSubmission.beenInStpBefore,
+        previousCommitteeIfApplicable:
+          fullSubmission.previousCommitteeIfApplicable || null,
+        previousRoleIfApplicable:
+          fullSubmission.previousRoleIfApplicable || null,
+        appliedCommittee: fullSubmission.appliedCommittee,
+        currentlyInvolvedInOtherActivities:
+          fullSubmission.involvedInOtherActivities,
       },
+
       experienceAndLeadership: {
-        hasCommitteeExperience: values.hasCommitteeExperience,
-        committeeExperienceDetails: values.hasCommitteeExperience === 'Yes' ? values.committeeExperienceDetails : null,
-        hasLedTeamBefore: values.hasLedTeamBefore,
-        leadershipExperienceDetails: values.hasLedTeamBefore === 'Yes' ? values.leadershipExperienceDetails : null,
-        whyInterested: values.whyInterested,
-        strongestSkills: values.strongestSkills,
-        visionForCommittee: values.visionForCommittee,
+        hasCommitteeExperience:
+          fullSubmission.hasCommitteeExperience,
+
+        committeeExperienceDetails:
+          fullSubmission.hasCommitteeExperience === 'Yes'
+            ? fullSubmission.committeeExperienceDetails
+            : null,
+
+        hasLedTeamBefore:
+          fullSubmission.hasLedTeamBefore,
+
+        leadershipExperienceDetails:
+          fullSubmission.hasLedTeamBefore === 'Yes'
+            ? fullSubmission.leadershipExperienceDetails
+            : null,
+
+        whyInterested:
+          fullSubmission.whyInterested,
+
+        strongestSkills:
+          fullSubmission.strongestSkills,
+
+        visionForCommittee:
+          fullSubmission.visionForCommittee,
       },
+
       situationalResponses: {
-        uncommittedMembersAction: values.uncommittedMembersAction,
-        suddenDepartureAction: values.suddenDepartureAction,
-        disagreementWithVpAction: values.disagreementWithVpAction,
-        areaToImprove: values.areaToImprove,
-        latestAchievement: values.latestAchievement,
-        whyChooseYou: values.whyChooseYou,
-        questionsForUs: values.questionsForUs || null,
+        uncommittedMembersAction:
+          fullSubmission.uncommittedMembersAction,
+
+        specialContribution:
+          fullSubmission.specialContribution,
+
+        creativeIdeas:
+          fullSubmission.creativeIdeas,
+
+        areaToImprove:
+          fullSubmission.areaToImprove,
+
+        latestAchievement:
+          fullSubmission.latestAchievement,
+
+        whyChooseYou:
+          fullSubmission.whyChooseYou,
+
+        questionsForUs:
+          fullSubmission.questionsForUs || null,
       },
+
       meta: {
         submittedAt: new Date().toISOString(),
         formVersion: '2026.2',
         status: 'SUBMITTED',
       },
-    };
+    }
 
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${API_BASE_URL}/api/applications`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formattedPayload),
-      });
+      const API_BASE_URL =
+        import.meta.env.VITE_API_URL ||
+        'http://localhost:5000'
 
-      const resData = await response.json();
+      const response = await fetch(
+        `${API_BASE_URL}/api/applications`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formattedPayload),
+        },
+      )
+
+      const resData = await response.json()
 
       if (response.ok && resData.success) {
-        setIsSuccess(true);
+        setSubmissionSuccess(true)
       } else {
-        setIsSuccess(false);
+        console.error('Backend submission failed:', resData)
+        setSubmissionSuccess(false)
       }
-    } catch (err) {
-      console.error('Submission error:', err);
-      setIsSuccess(false);
+    } catch (error) {
+      console.error('Submission error:', error)
+      setSubmissionSuccess(false)
     } finally {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+      setIsSubmitting(false)
+      setSubmitted(true)
 
-  if (isSubmitted) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  function handleRestart() {
+    setStep1Data(INITIAL_STEP1)
+    setStep2Data({})
+    setStep3Data({})
+    setErrors({})
+    setStep(1)
+    setSubmitted(false)
+    setSubmissionSuccess(true)
+  }
+
+  if (submitted) {
     return (
-      <SubmittedScreen
-        isSuccess={isSuccess}
-        onReset={() => {
-          setIsSubmitted(false);
-          if (isSuccess) {
-            setCurrentStep(0);
-          }
-        }}
-      />
-    );
+      <div className="app-container">
+        <Header />
+
+        <div className="form-card">
+          <SuccessScreen
+            fullName={step1Data.fullName}
+            isSuccess={submissionSuccess}
+            onRestart={handleRestart}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <RecruitmentForm
-      currentStep={currentStep}
-      setCurrentStep={setCurrentStep}
-      activeCard={activeCard}
-      setActiveCard={setActiveCard}
-      isSubmitting={isSubmitting}
-      handleFormSubmit={handleFormSubmit}
-      handleNext={handleNext}
-      handleBack={handleBack}
-    />
-  );
+    <div className="app-container">
+      <Header />
+
+      <div className="form-card">
+        {isSubmitting ? (
+          <div className="success-wrap">
+            <div className="success-icon">...</div>
+
+            <h2>Submitting your application</h2>
+
+            <p>
+              Please wait while we save your application.
+            </p>
+          </div>
+        ) : (
+          <>
+            <StepIndicator currentStep={step} />
+
+            {step === 1 && (
+              <Step1PersonalInfo
+                data={step1Data}
+                errors={errors}
+                onChange={updateStep1}
+              />
+            )}
+
+            {step === 2 && (
+              <DynamicQuestionStep
+                questions={step2Questions}
+                answers={step2Data}
+                errors={errors}
+                onChange={updateStep2}
+              />
+            )}
+
+            {step === 3 && (
+              <DynamicQuestionStep
+                questions={step3Questions}
+                answers={step3Data}
+                errors={errors}
+                onChange={updateStep3}
+              />
+            )}
+
+            <NavButtons
+              step={step}
+              onBack={handleBack}
+              onNext={handleNext}
+              isLastStep={step === 3}
+            />
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
